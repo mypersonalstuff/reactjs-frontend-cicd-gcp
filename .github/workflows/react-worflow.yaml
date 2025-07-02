@@ -29,3 +29,35 @@ jobs:
         if: always()
         run: |
           docker logout 
+  deploy-react: 
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: GCP_ENV 
+    steps: 
+    - name: Checkout Code 
+      uses: actions/checkout@v3
+    - name: Use with SHA 
+      run: | 
+        echo "TAG=${GITHUB_SHA::8}" >> $GITHUB_ENV
+    - name: Deploy via SSH to GCP VM 
+      uses: appleboy/ssh-action@v1.0.0 
+      with: 
+        host: ${{ secrets.GCP_IP }}
+        username: ${{ secrets.GCP_USER }}
+        key: ${{ secrets.GCP_PRI_KEY }}
+        envs: TAG 
+        script: |
+          
+          echo "remove contianer "
+          docker stop my-app || true 
+          docker rm my-app || true 
+
+          echo "Pulling the new docker image "
+          docker pull "lyvanna544/${{env.IMAGE}}:${{env.TAG}}"
+
+
+          echo "Running the new container "
+          docker run -dp 3000:80 \
+            --name my-app \
+            lyvanna544/${{env.IMAGE}}:${{env.TAG}}
+       
