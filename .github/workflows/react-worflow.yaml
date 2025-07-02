@@ -44,7 +44,7 @@ jobs:
       with: 
         host: ${{ secrets.GCP_IP }}
         username: ${{ secrets.GCP_USER }}
-        key: ${{ secrets.GCP_PRI_KEY }}
+        key: ${{ secrets.GCP_PRIV_KEY }}
         envs: TAG 
         script: |
           
